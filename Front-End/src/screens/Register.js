@@ -1,5 +1,5 @@
 import React,{Component} from "react";
-import { View, Text, StyleSheet , TouchableOpacity ,Button, TextInput  } from 'react-native';
+import { View, Text, StyleSheet , TouchableOpacity ,Button, TextInput, AsyncStorage  } from 'react-native';
 import axios from 'axios';
 
 //const userInfo = { username: 'yasmin', password:'1234' }
@@ -22,7 +22,6 @@ class Register extends Component {
         password:'',
         age:'',
         gender:'',
-        // user:''
     }
  
 //     componentDidMount() {
@@ -31,13 +30,35 @@ class Register extends Component {
 //         //this.render()
 //     }
 
+    saveData(userInfo){
+      AsyncStorage.setItem('_id',(userInfo._id));
+      AsyncStorage.setItem('username',(userInfo.username));
+      AsyncStorage.setItem('email',(userInfo.email));
+      AsyncStorage.setItem('password',(userInfo.password));
+      AsyncStorage.setItem('age',(userInfo.age));
+      AsyncStorage.setItem('gender',(userInfo.gender));
+    }
+
     addRegistration = () => {
+        var that=this;
+        const { navigate } = this.props.navigation;
         axios
-          .post("http://10.60.95.169:2000/registration", this.state)
-          .then(({ data }) => {
-            console.log("REGISTAR:", data);
-            this.setState({ user: data });
-          })
+          .post("http://10.60.243.107:2000/registration", this.state)
+          // .then(({ data }) => {
+          //   console.log("REGISTAR:", data);
+          //   this.setState({ user: data });
+          // })
+          .then(async function (response) {
+            that.saveData(response.data);
+            var role= await AsyncStorage.getItem('username');
+          // console.log('Role :', role);
+          // console.log('Uuuuuuuuuuuuu :', response.data._id);
+       
+          if(role){
+            alert("registaration success")
+            navigate('Login',response.data)
+          }
+        })
           .catch(error => {
             console.log(error);
           });
@@ -45,12 +66,12 @@ class Register extends Component {
         console.log('State :', this.state);
       };
 
-    change = (e,name) =>{
-        console.log('name :', name);
-        this.setState({
-            [name]:e.nativeEvent.text
-        })
-     }
+    // change = (e,name) =>{
+    //     console.log('name :', name);
+    //     this.setState({
+    //         [name]:e.nativeEvent.text
+    //     })
+    //  }
 
    
 
@@ -58,11 +79,11 @@ class Register extends Component {
       
     return (
       <View style={styles.screen}>
-        <TextInput onChange={(event)=>this.change(event,'username')} type="text" placeholder="UserName"  style={styles.inputfield} />
-        <TextInput onChange={(event)=>this.change(event,'email')} autoCompleteType="email" placeholder="Email"  style={styles.inputfield} />
-        <TextInput onChange={(event)=>this.change(event,'password')} secureTextEntry={true} placeholder="Password"  style={styles.inputfield} />
-        <TextInput onChange={(event)=>this.change(event,'age')} type="number" placeholder="Age" style={styles.inputfield} />
-        <TextInput onChange={(event)=>this.change(event,'gender')} type="text" placeholder="Gender" style={styles.inputfield} />
+        <TextInput onChangeText={(username) => this.setState({username})} type="text" placeholder="UserName"  style={styles.inputfield} />
+        <TextInput onChangeText={(email) => this.setState({email})} autoCompleteType="email" placeholder="Email"  style={styles.inputfield} />
+        <TextInput onChangeText={(password) => this.setState({password})} secureTextEntry={true} placeholder="Password"  style={styles.inputfield} />
+        <TextInput onChangeText={(age) => this.setState({age})} type="number" placeholder="Age" style={styles.inputfield} />
+        <TextInput onChangeText={(gender) => this.setState({gender})} type="text" placeholder="Gender" style={styles.inputfield} />
         <Button title="Submit" onPress={this.addRegistration }/>
         {/* <Text>Register screen </Text> */}
 

@@ -60,7 +60,7 @@ let registUser = (cb, obj) => {
   Users.insertMany(
     [
       {
-        username: obj.userName,
+        username: obj.username,
         email: obj.email,
         password: obj.password,
         age: obj.age,
